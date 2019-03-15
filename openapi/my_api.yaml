@@ -1,0 +1,153 @@
+openapi: 3.0.0
+info:
+  title: Books API
+  description: Test task
+  version: 0.0.1
+
+servers:
+  - url: http://0.0.0.0:8080
+
+paths:
+  /books:
+    get:
+      operationId: app.views.get_books
+      summary: Returns a list of books
+      parameters:
+        - $ref: '#/components/parameters/name'
+        - $ref: '#/components/parameters/author'
+        - $ref: '#/components/parameters/before'
+        - $ref: '#/components/parameters/after'
+      responses:
+        '200':
+          description: JSON array of books
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+
+    post:
+      operationId: app.views.create_books
+      summary: Create a batch of books
+      responses:
+        '201':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              x-body-name: books_list
+        
+
+  /books/{book_id}:
+    get:
+      operationId: app.views.get_book
+      summary: Get a single book
+      parameters:
+        - $ref: '#/components/parameters/book_id'
+      responses:
+        '200':
+          description: JSON array of books
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+
+    delete:
+      operationId: app.views.delete_book
+      summary: Delete a single book
+      parameters:
+        - $ref: '#/components/parameters/book_id'
+      responses:
+        '204':
+          description: Successful deleted
+        '404':
+          description: Book not found
+
+    patch:
+      operationId: app.views.update_book
+      summary: Update a single book
+      parameters:
+        - $ref: '#/components/parameters/book_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              x-body-name: book_obj
+      responses:
+        '204':
+          description: Successful updated
+        '404':
+          description: Book not found
+
+components:
+  parameters:
+    book_id:
+      name: book_id
+      description: Book's Unique identifier
+      in: path
+      required: true
+      schema:
+        type: integer
+    author:
+      name: author
+      description: Search pattern to filter Books by author field
+      in: query
+      schema:
+        type: string
+    name:
+      name: name
+      description: Search pattern to filter Books by name field
+      in: query
+      schema:
+        type: string
+    before:
+      name: before
+      description: Filter books by datetime_added, newer than given timestamp (lte)
+      in: query
+      schema:
+        type: integer
+    after:
+      name: after
+      description: Filter books by datetime_added, newer than given timestamp (gte)
+      in: query
+      schema:
+        type: integer
+
+  schemas:
+    BooksArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Book'
+    Book:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+            id:
+              type: integer
+            attributes:
+              type: object
+              properties:
+                name:
+                  type: string
+                author:
+                  type: string
+                  minLength: 3
+                year:
+                  type: integer
+                  minimum: 1
+                  maximum: 3000
+                pages_count:
+                  type: integer
+                datetime_added:
+                  type: string
+                  format: date-time
